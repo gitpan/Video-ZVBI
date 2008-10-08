@@ -1,4 +1,38 @@
-#!/usr/bin/perl -w
+head	1.2;
+access;
+symbols
+	ZVBI_0_2_3:1.2
+	ZVBI_0_2_2:1.1
+	ZVBI_0_2_1:1.1
+	ZVBI_0_2_0:1.1;
+locks
+	tom:1.2; strict;
+comment	@# @;
+
+
+1.2
+date	2007.12.02.18.32.11;	author tom;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2007.11.18.18.48.35;	author tom;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.2
+log
+@implemented work-around for bug in proxy_new in libzvbi up to <= 0.2.26
+- save & resotre STDIN around call to proxy_new()
+- up to 0.2.26 proxy_new() will close(0) upon connect failure
+@
+text
+@#!/usr/bin/perl -w
 #
 #  libzvbi test of teletext search
 #
@@ -19,7 +53,7 @@
 #  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
 
-# $Id: search-ttx.pl,v 1.2 2007/12/02 18:32:11 tom Exp tom $
+# $Id: search-ttx.pl,v 1.1 2007/11/18 18:48:35 tom Exp tom $
 
 use strict;
 use blib;
@@ -28,7 +62,7 @@ use Video::ZVBI qw(/^VBI_/);
 my $cr;
 
 sub pg_handler {
-   my($type, $ev, $lcr) = @_;
+   my($type, $ev, $lcr) = @@_;
 
    printf STDERR "${lcr}Page %03x.%02x ",
            $ev->{pgno},
@@ -36,13 +70,13 @@ sub pg_handler {
 }
 
 sub progress {
-   my ($pg,$user_data) = @_;
+   my ($pg,$user_data) = @@_;
    my ($page,$sub) = $pg->get_page_no();
    printf "${cr}Search #$user_data->[0] %03X.%04x ", $page, $sub;
 }
 
 sub search {
-   my ($vtdec) = @_;
+   my ($vtdec) = @@_;
    my $pat;
    print "\nEnter search pattern: ";
    chomp($pat = <STDIN>);
@@ -54,9 +88,9 @@ sub search {
       my $last_page;
       my $last_sub;
 
-      #my $rand = [int(rand(1000))];
-      #print "Search rand user data $rand->[0]\n";
-      $srch = Video::ZVBI::search::new($vtdec, 0x100, $any_sub, $pat, 0, 0, \&progress);
+      my $rand = [int(rand(1000))];
+      print "Search rand user data $rand->[0]\n";
+      $srch = Video::ZVBI::search::new($vtdec, 0x100, $any_sub, $pat, 0, 0, \&progress, $rand);
       die "failed to initialize search: $!\n" unless $srch;
 
       while (($stat = $srch->next($pg, 1)) == VBI_SEARCH_SUCCESS) {
@@ -149,3 +183,20 @@ sub main_func {
 
 main_func();
 
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d22 1
+a22 1
+# $Id$
+d97 3
+d102 3
+d142 3
+a144 1
+      $vtdec->decode($sliced, $n_lines, $timestamp);
+@

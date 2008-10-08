@@ -1,4 +1,28 @@
-#!/usr/bin/perl -w
+head	1.1;
+access;
+symbols
+	ZVBI_0_2_3:1.1;
+locks
+	tom:1.1; strict;
+comment	@# @;
+
+
+1.1
+date	2007.12.02.18.42.17;	author tom;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@#!/usr/bin/perl -w
 #
 #  Very simple test of the DVB PES multiplexer:
 #  - reading sliced data from an analog capture device
@@ -22,7 +46,7 @@
 #  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
 
-# $Id: dvb-mux.pl,v 1.1 2007/12/02 18:42:17 tom Exp tom $
+# $Id$
 
 use strict;
 use blib;
@@ -30,7 +54,7 @@ use Video::ZVBI qw(/^VBI_/);
 
 # callback function invoked by Video::ZVBI::dvb_mux::feed()
 sub feed_cb {
-   my ($pkg, $user_data) = @_;
+   my ($pkg, $user_data) = @@_;
 
    syswrite STDOUT, $pkg;
    print STDERR "wrote ".length($pkg)."\n";
@@ -41,8 +65,7 @@ sub feed_cb {
 sub main_func {
    my $opt_device = "/dev/vbi0";
    my $opt_buf_count = 5;
-   my $opt_services = VBI_SLICED_TELETEXT_B_625;
-   #my $opt_services = VBI_SLICED_TELETEXT_A;
+   my $opt_services = VBI_SLICED_TELETEXT_B;
    my $opt_strict = 0;
    my $opt_verbose = 0;
    my $opt_use_feed = 0;
@@ -91,10 +114,10 @@ sub main_func {
          my $sliced_left = $n_lines;
 
          # pass sliced data to multiplexer
-         my $buf_size = 2048;
-         my $buf_left = $buf_size;
-         my $buf;
          while ($sliced_left > 0) {
+            my $buf_size = 2048;
+            my $buf_left = $buf_size;
+            my $buf;
             print STDERR "$timestamp $buf_left <- $n_lines+$sliced_left\n";
             if (!$mux->cor($buf, $buf_left, $sliced, $sliced_left, $opt_services, $timestamp*90000.0)) {
 
@@ -109,9 +132,9 @@ sub main_func {
                last if $sliced_left == 0;
             }
             #die if $buf_left == 0;  # buffer too small
+            syswrite STDOUT, $buf, $buf_size-$buf_left if defined $buf;
+            print STDERR "wrote ".($buf_size-$buf_left)."\n";
          }
-         syswrite STDOUT, $buf, $buf_size-$buf_left if defined $buf;
-         print STDERR "wrote ".($buf_size-$buf_left)."\n";
       } else {
 
          if (!$mux->feed($sliced, $n_lines, $opt_services, $timestamp*90000.0)) {
@@ -125,3 +148,4 @@ sub main_func {
 
 main_func();
 
+@
